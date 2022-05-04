@@ -1,12 +1,24 @@
 package com.example.weatherapp.fragments;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.InputType;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.weatherapp.R;
 
@@ -17,14 +29,14 @@ import com.example.weatherapp.R;
  */
 public class WeatherFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    View rootView;
+    RadioGroup radioGroup;
+    RadioButton coorRadioBtn;
+    RadioButton cityRadioBtn;
+    ImageView weatherIcon;
+    RecyclerView recyclerView;
+    EditText cityNameOrWidthET;
+    EditText heightET;
 
     public WeatherFragment() {
         // Required empty public constructor
@@ -51,17 +63,55 @@ public class WeatherFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        rootView = inflater.inflate(R.layout.fragment_weather, container, false);
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_weather, container, false);
+        RelativeLayout topRelativeLayout = rootView.findViewById(R.id.relative_layout);
+        radioGroup = topRelativeLayout.findViewById(R.id.radio_group);
+        coorRadioBtn = topRelativeLayout.findViewById(R.id.coorRatioBtn);
+        cityRadioBtn = topRelativeLayout.findViewById(R.id.cityNameRatioBtn);
+
+        RelativeLayout bottomRelative = rootView.findViewById(R.id.bottentRelativeId);
+        weatherIcon = bottomRelative.findViewById(R.id.weatherIconId);
+        cityNameOrWidthET = bottomRelative.findViewById(R.id.citynameOrWidthET_Id);
+        heightET = bottomRelative.findViewById(R.id.heightET_Id);
+
+        //recyclerView = bottomRelative.findViewById(R.id.recyclerviewId);
+
+        coorRadioBtn.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onClick(View view) {
+                cityNameOrWidthET.setText("");
+                heightET.setText("");
+                cityNameOrWidthET.setVisibility(View.VISIBLE);
+                heightET.setVisibility(View.VISIBLE);
+                cityNameOrWidthET.setHint("Width");
+                heightET.setHint("Height");
+                cityNameOrWidthET.setInputType(InputType.TYPE_CLASS_NUMBER);
+                heightET.setInputType(InputType.TYPE_CLASS_NUMBER);
+                Toast.makeText(getActivity(),coorRadioBtn.getText().toString(),Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        cityRadioBtn.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onClick(View view) {
+                cityNameOrWidthET.setText("");
+                heightET.setText("");
+                cityNameOrWidthET.setVisibility(View.VISIBLE);
+                heightET.setVisibility(View.INVISIBLE);
+                cityNameOrWidthET.setHint("City Name");
+                cityNameOrWidthET.setInputType(InputType.TYPE_CLASS_TEXT);
+                Toast.makeText(getActivity(),cityRadioBtn.getText().toString(),Toast.LENGTH_SHORT).show();
+            }
+        });
+        return rootView;
     }
 
 }
