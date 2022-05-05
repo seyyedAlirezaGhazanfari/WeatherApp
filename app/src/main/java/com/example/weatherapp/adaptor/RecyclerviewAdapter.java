@@ -2,9 +2,12 @@ package com.example.weatherapp.adaptor;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -39,9 +42,18 @@ public class RecyclerviewAdapter extends RecyclerView.Adapter<RecyclerviewAdapte
     }
 
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.rowTextView.setText(weathers_in_weak.get(position).getName());
+        holder.temperature.setText(String.valueOf(weathers_in_weak.get(position).getTemperature()) + "*C");
+        holder.feelsLike.setText("Feels like " + String.valueOf(weathers_in_weak.get(position).getFeelsLike()) + "*C");
+        holder.humidity.setText("Humidity " + String.valueOf(weathers_in_weak.get(position).getHumidity()) + "%");
+
+        Context context = inflater.getContext();
+        Resources resources = context.getResources();
+        int resourceID=resources.getIdentifier(weathers_in_weak.get(position).getStatus(),"drawable",context.getPackageName());
+        holder.icon.getContext();
+        holder.icon.setImageResource(resourceID);
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -52,12 +64,20 @@ public class RecyclerviewAdapter extends RecyclerView.Adapter<RecyclerviewAdapte
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        TextView rowTextView;
+        LinearLayout recRowLayout;
+        TextView temperature;
+        TextView feelsLike;
+        TextView humidity;
+        ImageView icon;
         OnNoteListener onNoteListener;
 
         public ViewHolder(@NonNull View itemView, OnNoteListener onNoteListener) {
             super(itemView);
-            rowTextView = itemView.findViewById(R.id.recyclerRow_Id);
+            recRowLayout = itemView.findViewById(R.id.recRowLayout);
+            temperature = recRowLayout.findViewById(R.id.temperatureRecId);
+            feelsLike = recRowLayout.findViewById(R.id.feelsLikeRecId);
+            humidity = recRowLayout.findViewById(R.id.humiRecId);
+            icon = itemView.findViewById(R.id.imgRecId);
             this.onNoteListener = onNoteListener;
             itemView.setOnClickListener(this);
         }

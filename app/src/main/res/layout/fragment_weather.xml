@@ -71,9 +71,9 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginStart="101dp"
+            android:layout_marginStart="105dp"
             android:layout_marginTop="55dp"
-            android:layout_marginEnd="102dp"
+            android:layout_marginEnd="105dp"
             android:layout_marginBottom="541dp"
             android:visibility="invisible">
 
@@ -87,7 +87,7 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginStart="99dp"
+            android:layout_marginStart="105dp"
             android:layout_marginTop="130dp"
             android:layout_marginEnd="105dp"
             android:layout_marginBottom="465dp"
@@ -107,16 +107,16 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
         <LinearLayout
-            android:layout_width="185dp"
-            android:layout_height="159dp"
+            android:layout_width="188dp"
+            android:layout_height="149dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginEnd="44dp"
-            android:layout_marginBottom="292dp"
+            android:layout_marginEnd="41dp"
+            android:layout_marginBottom="302dp"
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/temperature"
+                android:id="@+id/temperatureRecId"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingStart="30dp"
@@ -129,7 +129,7 @@
 
 
             <TextView
-                android:id="@+id/weatherCondition"
+                android:id="@+id/feelsLikeRecId"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="30sp"
@@ -140,7 +140,7 @@
             </TextView>
 
             <TextView
-                android:id="@+id/cityName"
+                android:id="@+id/humiRecId"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="10sp"

@@ -22,11 +22,11 @@ private ActivityMainBinding binding;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Weather w1 = new Weather("first: sunny");
-        Weather w2 = new Weather("second: rainy");
-        Weather w3 = new Weather("third: snowy");
-        Weather w4 = new Weather("third: windy");
-        Weather w5 = new Weather("third: stormy");
+        Weather w1 = new Weather("sun", 10, 9, 5);
+        Weather w2 = new Weather("rain", 25, 22, 10);
+        Weather w3 = new Weather("snow", 30, 27, 20);
+        Weather w4 = new Weather("thunder", 2, 1, 3);
+        Weather w5 = new Weather("moon", -4, 2, 9);
 
      binding = ActivityMainBinding.inflate(getLayoutInflater());
      setContentView(binding.getRoot());
