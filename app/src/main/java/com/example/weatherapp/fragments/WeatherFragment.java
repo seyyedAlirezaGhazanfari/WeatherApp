@@ -1,6 +1,7 @@
 package com.example.weatherapp.fragments;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -20,14 +21,19 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.weatherapp.MainActivity;
 import com.example.weatherapp.R;
+import com.example.weatherapp.adaptor.RecyclerviewAdapter;
+import com.example.weatherapp.models.Weather;
+
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link WeatherFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class WeatherFragment extends Fragment {
+public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnNoteListener {
 
     View rootView;
     RadioGroup radioGroup;
@@ -37,6 +43,7 @@ public class WeatherFragment extends Fragment {
     RecyclerView recyclerView;
     EditText cityNameOrWidthET;
     EditText heightET;
+    RecyclerviewAdapter adapter;
 
     public WeatherFragment() {
         // Required empty public constructor
@@ -79,8 +86,17 @@ public class WeatherFragment extends Fragment {
         weatherIcon = bottomRelative.findViewById(R.id.weatherIconId);
         cityNameOrWidthET = bottomRelative.findViewById(R.id.citynameOrWidthET_Id);
         heightET = bottomRelative.findViewById(R.id.heightET_Id);
+        recyclerView = bottomRelative.findViewById(R.id.recyclerviewId);
 
-        //recyclerView = bottomRelative.findViewById(R.id.recyclerviewId);
+        // not clean at all !
+        cityNameOrWidthET.setText("");
+        heightET.setText("");
+        cityNameOrWidthET.setVisibility(View.VISIBLE);
+        heightET.setVisibility(View.VISIBLE);
+        cityNameOrWidthET.setHint("Width");
+        heightET.setHint("Height");
+        cityNameOrWidthET.setInputType(InputType.TYPE_CLASS_NUMBER);
+        heightET.setInputType(InputType.TYPE_CLASS_NUMBER);
 
         coorRadioBtn.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("SetTextI18n")
@@ -111,7 +127,18 @@ public class WeatherFragment extends Fragment {
                 Toast.makeText(getActivity(),cityRadioBtn.getText().toString(),Toast.LENGTH_SHORT).show();
             }
         });
+
+        recyclerView = bottomRelative.findViewById(R.id.recyclerviewId);
+        adapter = new RecyclerviewAdapter(rootView.getContext(), Weather.weathers, this);
+        recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+
         return rootView;
     }
 
+    @Override
+    public void OnNoteListener(int position) {
+        Toast toast = Toast.makeText(getActivity(),"CLICKED",Toast.LENGTH_SHORT);
+        toast.show();
+    }
 }
