@@ -1,14 +1,19 @@
 package com.example.weatherapp.ui.main;
 
+import android.app.Activity;
 import android.content.Context;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+
+import com.example.weatherapp.MainActivity;
 import com.example.weatherapp.R;
-import com.example.weatherapp.fragments.SettingFragment;
+import com.example.weatherapp.fragments.SettingsFragment;
 import com.example.weatherapp.fragments.WeatherFragment;
+
+import java.util.Set;
 
 /**
  * A [FragmentPagerAdapter] that returns a fragment corresponding to
@@ -36,7 +41,8 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
                 fragment = WeatherFragment.newInstance();
                 break;
             case 1:
-                fragment = SettingFragment.newInstance();
+                fragment = new SettingsFragment();
+                break;
         }
         assert fragment != null;
         return fragment;
