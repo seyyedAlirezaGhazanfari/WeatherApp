@@ -24,4 +24,8 @@
     <string name="settingsSharedPrefFileName">settings</string>
     <string name="summaryID">summary</string>
     <string name="iconID">iconID</string>
+    <string name="humidityLabel">humidity:</string>
+    <string name="feelsLikeLabel">feels like:</string>
+    <string name="tempLabel">temp:</string>
+    <string name="weatherDescriptionLabel">Weather Description</string>
 </resources>

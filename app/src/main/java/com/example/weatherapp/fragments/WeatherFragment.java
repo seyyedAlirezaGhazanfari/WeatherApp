@@ -2,6 +2,9 @@ package com.example.weatherapp.fragments;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -21,6 +24,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.weatherapp.DescriptionActivity;
 import com.example.weatherapp.MainActivity;
 import com.example.weatherapp.R;
 import com.example.weatherapp.adaptor.RecyclerviewAdapter;
@@ -52,9 +56,10 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
+     * <p>
+     * //* @param param1 Parameter 1.
+     * //* @param param2 Parameter 2.
      *
-     //* @param param1 Parameter 1.
-     //* @param param2 Parameter 2.
      * @return A new instance of fragment WeatherFragment.
      */
     // TODO: Rename and change types and number of parameters
@@ -110,7 +115,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
                 heightET.setHint("Height");
                 cityNameOrWidthET.setInputType(InputType.TYPE_CLASS_NUMBER);
                 heightET.setInputType(InputType.TYPE_CLASS_NUMBER);
-                Toast.makeText(getActivity(),coorRadioBtn.getText().toString(),Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), coorRadioBtn.getText().toString(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -124,7 +129,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
                 heightET.setVisibility(View.INVISIBLE);
                 cityNameOrWidthET.setHint("City Name");
                 cityNameOrWidthET.setInputType(InputType.TYPE_CLASS_TEXT);
-                Toast.makeText(getActivity(),cityRadioBtn.getText().toString(),Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), cityRadioBtn.getText().toString(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -137,8 +142,19 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     }
 
     @Override
-    public void OnNoteListener(int position) {
-        Toast toast = Toast.makeText(getActivity(),"CLICKED",Toast.LENGTH_SHORT);
+    public void OnNoteListener(ImageView icon, TextView temp, TextView feelsLike, TextView humidity, int position) {
+        Toast toast = Toast.makeText(getActivity(), "CLICKED", Toast.LENGTH_SHORT);
         toast.show();
+        Intent intent = new Intent(
+                this.getActivity(),
+                DescriptionActivity.class
+        );
+        int resourceID = Integer.parseInt(icon.getTag().toString());
+        intent.putExtra("iconDesc", resourceID);
+        intent.putExtra("tempDesc", temp.getText());
+        intent.putExtra("feelsLikeDesc", feelsLike.getText());
+        intent.putExtra("humidityDesc", humidity.getText());
+        startActivity(intent);
+
     }
 }
