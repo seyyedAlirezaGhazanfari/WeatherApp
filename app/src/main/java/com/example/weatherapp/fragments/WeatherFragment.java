@@ -133,6 +133,16 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
         latitudeView = bottomRelative.findViewById(R.id.latitudeView);
         recyclerView = bottomRelative.findViewById(R.id.recyclerviewId);
 
+        location.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                int keyCode = keyEvent.getKeyCode();
+                if (keyCode == KeyEvent.KEYCODE_ENTER){
+                    
+                }
+                return false;
+            }
+        });
         coorRadioBtn.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("SetTextI18n")
             @Override
