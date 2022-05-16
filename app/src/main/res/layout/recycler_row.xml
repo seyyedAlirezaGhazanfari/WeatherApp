@@ -38,7 +38,7 @@
             android:paddingStart="30sp"
             android:text="feels like"
             android:textColor="#ffffff"
-            android:textSize="20sp">
+            android:textSize="17sp">
 
         </TextView>
 
@@ -46,10 +46,11 @@
             android:id="@+id/humiRecId"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="30sp"
+            android:drawableStart="@drawable/humidity__1_"
+            android:drawablePadding="10dp"
             android:text="humidity"
             android:textColor="#ffffff"
-            android:textSize="20sp">
+            android:textSize="17sp">
 
         </TextView>
 

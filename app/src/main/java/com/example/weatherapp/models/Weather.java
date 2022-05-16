@@ -3,37 +3,34 @@ package com.example.weatherapp.models;
 import java.util.ArrayList;
 
 public class Weather {
-    private String status;
-    private int temperature;
-    private int feelsLike;
-    private int humidity;
-    public static ArrayList<Weather> weathers = new ArrayList<>();
+    private int id;
+    private String main;
+    private String icon;
 
-    public Weather(String status, int temperature, int feelsLike, int humidity) {
-        this.status = status;
-        this.temperature = temperature;
-        this.feelsLike = feelsLike;
-        this.humidity = humidity;
-        weathers.add(this);
+    public Weather() {
     }
 
-    public static ArrayList<Weather> getWeathers() {
-        return weathers;
+    public int getId() {
+        return id;
     }
 
-    public int getFeelsLike() {
-        return feelsLike;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public int getHumidity() {
-        return humidity;
+    public String getMain() {
+        return main;
     }
 
-    public int getTemperature() {
-        return temperature;
+    public void setMain(String main) {
+        this.main = main;
     }
 
-    public String getStatus() {
-        return status;
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 }

@@ -107,6 +107,7 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
         <LinearLayout
+            android:id="@+id/layoutMainCityId"
             android:layout_width="188dp"
             android:layout_height="149dp"
             android:layout_alignParentEnd="true"
@@ -116,37 +117,37 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/temperatureRecId"
-                android:layout_width="wrap_content"
+                android:id="@+id/temperatureId"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="30dp"
                 android:text="0*C"
                 android:textColor="#ffffff"
-                android:textSize="50sp"
+                android:textSize="40sp"
                 android:textStyle="bold">
 
             </TextView>
 
 
             <TextView
-                android:id="@+id/feelsLikeRecId"
+                android:id="@+id/feelsLikeId"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="30sp"
+                android:layout_height="35dp"
+                android:paddingStart="18sp"
                 android:text="---------"
                 android:textColor="#ffffff"
-                android:textSize="30sp">
+                android:textSize="18sp">
 
             </TextView>
 
             <TextView
-                android:id="@+id/humiRecId"
+                android:id="@+id/humiId"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:paddingStart="10sp"
                 android:text="Fetching___"
                 android:textColor="#ffffff"
-                android:textSize="24sp"
+                android:textSize="20sp"
                 android:textStyle="bold">
 
             </TextView>
