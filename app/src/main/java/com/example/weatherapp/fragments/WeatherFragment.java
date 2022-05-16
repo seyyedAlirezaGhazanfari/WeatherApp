@@ -14,11 +14,17 @@ import android.location.LocationManager;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -37,16 +43,24 @@ import com.example.weatherapp.DescriptionActivity;
 import com.example.weatherapp.MainActivity;
 import com.example.weatherapp.R;
 import com.example.weatherapp.adaptor.RecyclerviewAdapter;
+import com.example.weatherapp.models.Main;
 import com.example.weatherapp.models.Weather;
 import com.example.weatherapp.models.WeatherResult;
+import com.example.weatherapp.models.Wind;
+import com.example.weatherapp.network.WeatherLoader;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -55,7 +69,7 @@ import cz.msebera.android.httpclient.Header;
  * Use the {@link WeatherFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnNoteListener {
+public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnNoteListener, LoaderManager.LoaderCallbacks<String> {
 
     View rootView;
     RadioGroup radioGroup;
@@ -71,6 +85,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     TextView mainCityHum;
     TextView mainCityFeels;
     WeatherResult mainCityWeatherResult;
+    private static final DecimalFormat df = new DecimalFormat("0.");
 
     final String APP_ID = "dab3af44de7d24ae7ff86549334e45bd";
     final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather";
@@ -110,6 +125,23 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
         super.onCreate(savedInstanceState);
 
     }
+
+    long delay = 1000; // 1 seconds after user stops typing
+    long last_text_edit = 0;
+    Handler handler = new Handler();
+
+    private Runnable input_finish_checker = new Runnable() {
+        public void run() {
+            if (System.currentTimeMillis() > (last_text_edit + delay - 500)) {
+                // TODO: do what you need here
+                // ............
+                // ............
+                Bundle queryBundle = new Bundle();
+                queryBundle.putString("queryString", cityNameOrWidthET.getText().toString());
+                WeatherFragment.this.getActivity().getSupportLoaderManager().restartLoader(0, queryBundle, WeatherFragment.this);
+            }
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -171,8 +203,35 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
                 cityNameOrWidthET.setHint("City Name");
                 cityNameOrWidthET.setInputType(InputType.TYPE_CLASS_TEXT);
                 Toast.makeText(getActivity(), cityRadioBtn.getText().toString(), Toast.LENGTH_SHORT).show();
+
+                cityNameOrWidthET.addTextChangedListener(new TextWatcher() {
+                                                    @Override
+                                                    public void beforeTextChanged (CharSequence s,int start, int count,
+                                                                                   int after){
+                                                    }
+                                                    @Override
+                                                    public void onTextChanged ( final CharSequence s, int start, int before,
+                                                                                int count){
+                                                        //You need to remove this to run only once
+                                                        handler.removeCallbacks(input_finish_checker);
+
+                                                    }
+                                                    @Override
+                                                    public void afterTextChanged ( final Editable s){
+                                                        //avoid triggering event when text is empty
+                                                        if (s.length() > 0) {
+                                                            last_text_edit = System.currentTimeMillis();
+                                                            handler.postDelayed(input_finish_checker, delay);
+                                                        } else {
+
+                                                        }
+                                                    }
+                                                }
+
+                );
             }
         });
+
 
         recyclerView = bottomRelative.findViewById(R.id.recyclerviewId);
         adapter = new RecyclerviewAdapter(rootView.getContext(), WeatherResult.results, this);
@@ -193,7 +252,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
         //int resourceID = Integer.parseInt(icon.getTag().toString());
 
         WeatherResult weatherResult = WeatherResult.results.get(position);
-        int resourceID = getResources().getIdentifier(weatherResult.getMicon(),"drawable", requireActivity().getPackageName());
+        int resourceID = getResources().getIdentifier(weatherResult.getMicon(), "drawable", requireActivity().getPackageName());
         intent.putExtra("iconDesc", resourceID);
         intent.putExtra("tempDesc", String.valueOf(weatherResult.getTemp()));
         intent.putExtra("feelsLikeDesc", String.valueOf(weatherResult.getMain().getFeels_like()));
@@ -207,18 +266,20 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     @Override
     public void onResume() {
         super.onResume();
-        getWeatherForCurrentLocation();
+        //getWeatherForCurrentLocation();
     }
 
-
+/*
     private void getWeatherForNewCity(String city) {
         RequestParams params = new RequestParams();
         params.put("q", city);
         params.put("appid", APP_ID);
         letsdoSomeNetworking(params);
     }
+ */
 
 
+/*
     private void getWeatherForCurrentLocation() {
         mLocationManager = (LocationManager) requireActivity().getSystemService(Context.LOCATION_SERVICE);
         mLocationListner = new LocationListener() {
@@ -269,7 +330,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
         mLocationManager.requestLocationUpdates(mLocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, (LocationListener) mLocationListner);
         mLocationManager.requestLocationUpdates(mLocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, (LocationListener) mLocationListner);
     }
-
+*/
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -279,7 +340,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
         if (requestCode == REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(getActivity(), "Locationget Succesffully", Toast.LENGTH_SHORT).show();
-                getWeatherForCurrentLocation();
+                //getWeatherForCurrentLocation();
             } else {
                 //user denied the permission
             }
@@ -288,7 +349,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
 
     }
 
-
+/*
     private void letsdoSomeNetworking(RequestParams params) {
         AsyncHttpClient client = new AsyncHttpClient();
         client.get(WEATHER_URL, params, new JsonHttpResponseHandler() {
@@ -317,9 +378,10 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
 
     }
 
+ */
+
     @SuppressLint("SetTextI18n")
     private void updateUI(WeatherResult weather) {
-        Toast.makeText(getContext(), weather.getCityName(), Toast.LENGTH_SHORT).show();
         mainCityTemp.setText(String.valueOf(weather.getTemp()) + "°C");
         mainCityFeels.setText("City: " + weather.getCityName());
         int resourceID = getResources().getIdentifier(weather.getMicon(), "drawable", getActivity().getPackageName());
@@ -334,4 +396,43 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
             mLocationManager.removeUpdates(mLocationListner);
         }
     }
+
+    @NonNull
+    @Override
+    public Loader<String> onCreateLoader(int id, @Nullable Bundle args) {
+        return new WeatherLoader(getContext(), args.getString("queryString"));
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<String> loader, String data) {
+        try {
+            Toast.makeText(getActivity(), "Data !!!! : " + data, Toast.LENGTH_SHORT).show();
+            JSONObject jsonObject = new JSONObject(data);
+            WeatherResult weatherR = new WeatherResult();
+            df.setRoundingMode(RoundingMode.UP);
+            weatherR.setCityName(jsonObject.getString("name"));
+            weatherR.setWeather(new Weather());
+            weatherR.getWeather().setId(jsonObject.getJSONArray("weather").getJSONObject(0).getInt("id"));
+            weatherR.getWeather().setMain(jsonObject.getJSONArray("weather").getJSONObject(0).getString("main"));
+            weatherR.setMicon(WeatherResult.updateWeatherIcon(weatherR.getWeather().getId()));
+            weatherR.setMain(new Main());
+            weatherR.getMain().setTemp(Double.parseDouble(df.format(jsonObject.getJSONObject("main").getDouble("temp") - 273.15)));
+            weatherR.getMain().setFeels_like(Double.parseDouble(df.format(jsonObject.getJSONObject("main").getDouble("feels_like") - 273.15)));
+            weatherR.getMain().setHumidity((int) jsonObject.getJSONObject("main").getDouble("humidity"));
+            weatherR.getWeather().setDesctiption(jsonObject.getJSONArray("weather").getJSONObject(0).getString("description"));
+            WeatherResult.results.add(weatherR);
+            weatherR.setWind(new Wind());
+            weatherR.getWind().setSpeed(jsonObject.getJSONObject("wind").getDouble("speed"));
+            updateUI(weatherR);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<String> loader) {
+
+    }
+
+
 }

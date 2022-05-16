@@ -15,7 +15,7 @@ import com.example.weatherapp.models.Weather;
 import com.example.weatherapp.ui.main.SectionsPagerAdapter;
 import com.google.android.material.tabs.TabLayout;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity  {
 
     private ActivityMainBinding binding;
 

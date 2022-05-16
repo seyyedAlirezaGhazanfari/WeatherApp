@@ -1,9 +1,7 @@
 package com.example.weatherapp.models;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -26,33 +24,108 @@ public class WeatherResult {
     private static final DecimalFormat df = new DecimalFormat("0.");
 
 
-    public static WeatherResult fromJson(JSONObject jsonObject) {
-        try {
-            WeatherResult weatherR = new WeatherResult();
-            df.setRoundingMode(RoundingMode.UP);
-            weatherR.cityName = jsonObject.getString("name");
-            weatherR.weather = new Weather();
-            weatherR.weather.setId(jsonObject.getJSONArray("weather").getJSONObject(0).getInt("id"));
-            weatherR.weather.setMain(jsonObject.getJSONArray("weather").getJSONObject(0).getString("main"));
-            weatherR.micon = updateWeatherIcon(weatherR.weather.getId());
-            weatherR.main = new Main();
-            weatherR.main.setTemp(Double.parseDouble(df.format(jsonObject.getJSONObject("main").getDouble("temp") - 273.15)));
-            weatherR.main.setFeels_like(Double.parseDouble(df.format(jsonObject.getJSONObject("main").getDouble("feels_like") - 273.15)));
-            weatherR.main.setHumidity((int) jsonObject.getJSONObject("main").getDouble("humidity"));
-            weatherR.weather.setDesctiption(jsonObject.getJSONArray("weather").getJSONObject(0).getString("description"));
-            results.add(weatherR);
-            weatherR.wind = new Wind();
-            weatherR.wind.setSpeed(jsonObject.getJSONObject("wind").getDouble("speed"));
-            return weatherR;
+    public static void fromJson(JSONObject jsonObject) {
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
 
-    private static String updateWeatherIcon(int condition)
+    public void setCoord(Coord coord) {
+        this.coord = coord;
+    }
+
+    public void setWeather(Weather weather) {
+        this.weather = weather;
+    }
+
+    public String getBase() {
+        return base;
+    }
+
+    public void setBase(String base) {
+        this.base = base;
+    }
+
+    public void setMain(Main main) {
+        this.main = main;
+    }
+
+    public int getVisibility() {
+        return visibility;
+    }
+
+    public void setVisibility(int visibility) {
+        this.visibility = visibility;
+    }
+
+    public Wind getWind() {
+        return wind;
+    }
+
+    public void setWind(Wind wind) {
+        this.wind = wind;
+    }
+
+    public int getDt() {
+        return dt;
+    }
+
+    public void setDt(int dt) {
+        this.dt = dt;
+    }
+
+    public Sys getSys() {
+        return sys;
+    }
+
+    public void setSys(Sys sys) {
+        this.sys = sys;
+    }
+
+    public int getTimezone() {
+        return timezone;
+    }
+
+    public void setTimezone(int timezone) {
+        this.timezone = timezone;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setCityName(String cityName) {
+        this.cityName = cityName;
+    }
+
+    public int getCod() {
+        return cod;
+    }
+
+    public void setCod(int cod) {
+        this.cod = cod;
+    }
+
+    public void setMicon(String micon) {
+        this.micon = micon;
+    }
+
+    public static ArrayList<WeatherResult> getResults() {
+        return results;
+    }
+
+    public static void setResults(ArrayList<WeatherResult> results) {
+        WeatherResult.results = results;
+    }
+
+    public static DecimalFormat getDf() {
+        return df;
+    }
+
+    public static String updateWeatherIcon(int condition)
     {
         if(condition>=0 && condition<=300)
         {
