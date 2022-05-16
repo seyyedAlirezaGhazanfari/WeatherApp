@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -63,14 +64,14 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     RadioButton cityRadioBtn;
     ImageView weatherIcon;
     RecyclerView recyclerView;
-    EditText cityNameOrWidthET;
-    EditText heightET;
     RecyclerviewAdapter adapter;
     LinearLayout layoutMainCity;
     TextView mainCityTemp;
     TextView mainCityHum;
     TextView mainCityFeels;
     WeatherResult mainCityWeatherResult;
+    EditText location;
+    EditText latitudeView;
 
     final String APP_ID = "dab3af44de7d24ae7ff86549334e45bd";
     final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather";
@@ -120,7 +121,6 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
         radioGroup = topRelativeLayout.findViewById(R.id.radio_group);
         coorRadioBtn = topRelativeLayout.findViewById(R.id.coorRatioBtn);
         cityRadioBtn = topRelativeLayout.findViewById(R.id.cityNameRatioBtn);
-
         RelativeLayout bottomRelative = rootView.findViewById(R.id.bottentRelativeId);
         weatherIcon = bottomRelative.findViewById(R.id.weatherIconId);
 
@@ -129,34 +129,17 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
         mainCityHum = layoutMainCity.findViewById(R.id.humiId);
         mainCityFeels = layoutMainCity.findViewById(R.id.feelsLikeId);
 
-
-        cityNameOrWidthET = bottomRelative.findViewById(R.id.citynameOrWidthET_Id);
-        heightET = bottomRelative.findViewById(R.id.heightET_Id);
+        location = bottomRelative.findViewById(R.id.locationInputView);
+        latitudeView = bottomRelative.findViewById(R.id.latitudeView);
         recyclerView = bottomRelative.findViewById(R.id.recyclerviewId);
-
-        // not clean at all !
-        cityNameOrWidthET.setText("");
-        heightET.setText("");
-        cityNameOrWidthET.setVisibility(View.VISIBLE);
-        heightET.setVisibility(View.VISIBLE);
-        cityNameOrWidthET.setHint("Width");
-        heightET.setHint("Height");
-        cityNameOrWidthET.setInputType(InputType.TYPE_CLASS_NUMBER);
-        heightET.setInputType(InputType.TYPE_CLASS_NUMBER);
 
         coorRadioBtn.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View view) {
-                cityNameOrWidthET.setText("");
-                heightET.setText("");
-                cityNameOrWidthET.setVisibility(View.VISIBLE);
-                heightET.setVisibility(View.VISIBLE);
-                cityNameOrWidthET.setHint("Width");
-                heightET.setHint("Height");
-                cityNameOrWidthET.setInputType(InputType.TYPE_CLASS_NUMBER);
-                heightET.setInputType(InputType.TYPE_CLASS_NUMBER);
-                Toast.makeText(getActivity(), coorRadioBtn.getText().toString(), Toast.LENGTH_SHORT).show();
+                location.setInputType(InputType.TYPE_CLASS_NUMBER);
+                location.setHint(getString(R.string.longitude));
+                latitudeView.setVisibility(View.VISIBLE);
             }
         });
 
@@ -164,13 +147,9 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
             @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View view) {
-                cityNameOrWidthET.setText("");
-                heightET.setText("");
-                cityNameOrWidthET.setVisibility(View.VISIBLE);
-                heightET.setVisibility(View.INVISIBLE);
-                cityNameOrWidthET.setHint("City Name");
-                cityNameOrWidthET.setInputType(InputType.TYPE_CLASS_TEXT);
-                Toast.makeText(getActivity(), cityRadioBtn.getText().toString(), Toast.LENGTH_SHORT).show();
+                location.setInputType(InputType.TYPE_TEXT_VARIATION_PERSON_NAME);
+                location.setHint("city");
+                latitudeView.setVisibility(View.INVISIBLE);
             }
         });
 
@@ -207,7 +186,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     @Override
     public void onResume() {
         super.onResume();
-        getWeatherForCurrentLocation();
+        //getWeatherForCurrentLocation();
     }
 
 
@@ -279,7 +258,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
         if (requestCode == REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(getActivity(), "Locationget Succesffully", Toast.LENGTH_SHORT).show();
-                getWeatherForCurrentLocation();
+                //getWeatherForCurrentLocation();
             } else {
                 //user denied the permission
             }
