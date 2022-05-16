@@ -1,32 +1,15 @@
 package com.example.weatherapp.fragments;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.os.Handler;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,8 +22,14 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.weatherapp.DescriptionActivity;
-import com.example.weatherapp.MainActivity;
 import com.example.weatherapp.R;
 import com.example.weatherapp.adaptor.RecyclerviewAdapter;
 import com.example.weatherapp.models.Main;
@@ -48,27 +37,14 @@ import com.example.weatherapp.models.Weather;
 import com.example.weatherapp.models.WeatherResult;
 import com.example.weatherapp.models.Wind;
 import com.example.weatherapp.network.WeatherLoader;
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.JsonHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.HashMap;
 
-import cz.msebera.android.httpclient.Header;
-
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link WeatherFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnNoteListener, LoaderManager.LoaderCallbacks<String> {
 
     View rootView;
@@ -87,9 +63,6 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     WeatherResult mainCityWeatherResult;
     private static final DecimalFormat df = new DecimalFormat("0.");
 
-    final String APP_ID = "dab3af44de7d24ae7ff86549334e45bd";
-    final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather";
-
     final long MIN_TIME = 5000;
     final float MIN_DISTANCE = 1000;
     final int REQUEST_CODE = 101;
@@ -98,24 +71,12 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     LocationListener mLocationListner;
 
     public WeatherFragment() {
-        // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     * <p>
-     * //* @param param1 Parameter 1.
-     * //* @param param2 Parameter 2.
-     *
-     * @return A new instance of fragment WeatherFragment.
-     */
     // TODO: Rename and change types and number of parameters
     public static WeatherFragment newInstance() {
         WeatherFragment fragment = new WeatherFragment();
         Bundle args = new Bundle();
-        //args.putString(ARG_PARAM1, param1);
-        //args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -126,22 +87,96 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
 
     }
 
-    long delay = 1000; // 1 seconds after user stops typing
+    long delay = 5000; // 1 seconds after user stops typing
     long last_text_edit = 0;
     Handler handler = new Handler();
 
     private Runnable input_finish_checker = new Runnable() {
         public void run() {
             if (System.currentTimeMillis() > (last_text_edit + delay - 500)) {
-                // TODO: do what you need here
-                // ............
-                // ............
                 Bundle queryBundle = new Bundle();
-                queryBundle.putString("queryString", cityNameOrWidthET.getText().toString());
+                queryBundle.putString("q", cityNameOrWidthET.getText().toString());
                 WeatherFragment.this.getActivity().getSupportLoaderManager().restartLoader(0, queryBundle, WeatherFragment.this);
             }
         }
     };
+
+    private Runnable coordinate_input_finish_checker = new Runnable() {
+        public void run() {
+            if (System.currentTimeMillis() > (last_text_edit + delay - 500)) {
+                Bundle queryBundle = new Bundle();
+                queryBundle.putString("lat", cityNameOrWidthET.getText().toString());
+                queryBundle.putString("lon", heightET.getText().toString());
+                WeatherFragment.this.getActivity().getSupportLoaderManager().restartLoader(0, queryBundle, WeatherFragment.this);
+            }
+        }
+    };
+
+
+    TextWatcher coordinateTextWatcher = new TextWatcher() {
+
+        @Override
+        public void beforeTextChanged(
+                CharSequence s,
+                int start,
+                int count,
+                int after
+        ) {
+        }
+
+        @Override
+        public void onTextChanged(
+                final CharSequence s,
+                int start,
+                int before,
+                int count
+        ) {
+            handler.removeCallbacks(input_finish_checker);
+        }
+
+        @Override
+        public void afterTextChanged(final Editable s) {
+            if (s.length() > 0) {
+                last_text_edit = System.currentTimeMillis();
+                handler.postDelayed(coordinate_input_finish_checker, 1);
+            } else {
+
+            }
+        }
+    };
+
+    TextWatcher textWatcher = new TextWatcher() {
+
+        @Override
+        public void beforeTextChanged(
+                CharSequence s,
+                int start,
+                int count,
+                int after
+        ) {
+        }
+
+        @Override
+        public void onTextChanged(
+                final CharSequence s,
+                int start,
+                int before,
+                int count
+        ) {
+            handler.removeCallbacks(input_finish_checker);
+        }
+
+        @Override
+        public void afterTextChanged(final Editable s) {
+            if (s.length() > 0) {
+                last_text_edit = System.currentTimeMillis();
+                handler.postDelayed(input_finish_checker, 1);
+            } else {
+
+            }
+        }
+    };
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -162,8 +197,8 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
         mainCityFeels = layoutMainCity.findViewById(R.id.feelsLikeId);
 
 
-        cityNameOrWidthET = bottomRelative.findViewById(R.id.citynameOrWidthET_Id);
-        heightET = bottomRelative.findViewById(R.id.heightET_Id);
+        cityNameOrWidthET = bottomRelative.findViewById(R.id.locationInputView);
+        heightET = bottomRelative.findViewById(R.id.latitudeView);
         recyclerView = bottomRelative.findViewById(R.id.recyclerviewId);
 
         // not clean at all !
@@ -175,6 +210,8 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
         heightET.setHint("Height");
         cityNameOrWidthET.setInputType(InputType.TYPE_CLASS_NUMBER);
         heightET.setInputType(InputType.TYPE_CLASS_NUMBER);
+        cityNameOrWidthET.addTextChangedListener(coordinateTextWatcher);
+        heightET.addTextChangedListener(coordinateTextWatcher);
 
         coorRadioBtn.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("SetTextI18n")
@@ -189,6 +226,9 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
                 cityNameOrWidthET.setInputType(InputType.TYPE_CLASS_NUMBER);
                 heightET.setInputType(InputType.TYPE_CLASS_NUMBER);
                 Toast.makeText(getActivity(), coorRadioBtn.getText().toString(), Toast.LENGTH_SHORT).show();
+                cityNameOrWidthET.removeTextChangedListener(textWatcher);
+                cityNameOrWidthET.addTextChangedListener(coordinateTextWatcher);
+
             }
         });
 
@@ -204,31 +244,8 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
                 cityNameOrWidthET.setInputType(InputType.TYPE_CLASS_TEXT);
                 Toast.makeText(getActivity(), cityRadioBtn.getText().toString(), Toast.LENGTH_SHORT).show();
 
-                cityNameOrWidthET.addTextChangedListener(new TextWatcher() {
-                                                    @Override
-                                                    public void beforeTextChanged (CharSequence s,int start, int count,
-                                                                                   int after){
-                                                    }
-                                                    @Override
-                                                    public void onTextChanged ( final CharSequence s, int start, int before,
-                                                                                int count){
-                                                        //You need to remove this to run only once
-                                                        handler.removeCallbacks(input_finish_checker);
-
-                                                    }
-                                                    @Override
-                                                    public void afterTextChanged ( final Editable s){
-                                                        //avoid triggering event when text is empty
-                                                        if (s.length() > 0) {
-                                                            last_text_edit = System.currentTimeMillis();
-                                                            handler.postDelayed(input_finish_checker, delay);
-                                                        } else {
-
-                                                        }
-                                                    }
-                                                }
-
-                );
+                cityNameOrWidthET.removeTextChangedListener(coordinateTextWatcher);
+                cityNameOrWidthET.addTextChangedListener(textWatcher);
             }
         });
 
@@ -400,7 +417,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     @NonNull
     @Override
     public Loader<String> onCreateLoader(int id, @Nullable Bundle args) {
-        return new WeatherLoader(getContext(), args.getString("queryString"));
+        return new WeatherLoader(getContext(), args);
     }
 
     @Override
