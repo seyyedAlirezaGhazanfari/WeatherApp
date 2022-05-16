@@ -12,6 +12,7 @@ public class DescriptionActivity extends AppCompatActivity {
     TextView tempView;
     TextView feelsLikeView;
     TextView humidityView;
+    TextView descriptionView;
     ImageView icon;
 
     @Override
@@ -22,14 +23,17 @@ public class DescriptionActivity extends AppCompatActivity {
         tempView = findViewById(R.id.descTempView);
         feelsLikeView = findViewById(R.id.descFeelTempView);
         humidityView = findViewById(R.id.descHumidityView);
+        descriptionView = findViewById(R.id.descriptionView);
         Intent intent = getIntent();
         int iconResourceID = intent.getIntExtra("iconDesc", R.drawable.finding);
         String temperature = intent.getStringExtra("tempDesc");
         String feelsLike = intent.getStringExtra("feelsLikeDesc");
         String humidity = intent.getStringExtra("humidityDesc");
+        String description = intent.getStringExtra("description");
         icon.setImageResource(iconResourceID);
         tempView.setText(temperature);
         feelsLikeView.setText(feelsLike);
         humidityView.setText(humidity);
+        descriptionView.setText(description);
     }
 }

@@ -190,11 +190,15 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
                 this.getActivity(),
                 DescriptionActivity.class
         );
-        int resourceID = Integer.parseInt(icon.getTag().toString());
+        //int resourceID = Integer.parseInt(icon.getTag().toString());
+
+        WeatherResult weatherResult = WeatherResult.results.get(position);
+        int resourceID = getResources().getIdentifier(weatherResult.getMicon(),"drawable", requireActivity().getPackageName());
         intent.putExtra("iconDesc", resourceID);
-        intent.putExtra("tempDesc", temp.getText());
-        intent.putExtra("feelsLikeDesc", feelsLike.getText());
-        intent.putExtra("humidityDesc", humidity.getText());
+        intent.putExtra("tempDesc", String.valueOf(weatherResult.getTemp()));
+        intent.putExtra("feelsLikeDesc", String.valueOf(weatherResult.getMain().getFeels_like()));
+        intent.putExtra("humidityDesc", String.valueOf(weatherResult.getMain().getHumidity()));
+        intent.putExtra("description", weatherResult.getWeather().getDesctiption());
         startActivity(intent);
 
     }

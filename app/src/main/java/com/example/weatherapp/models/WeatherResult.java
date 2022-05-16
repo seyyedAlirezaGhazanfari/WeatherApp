@@ -39,6 +39,7 @@ public class WeatherResult {
             weatherR.main.setTemp(Double.parseDouble(df.format(jsonObject.getJSONObject("main").getDouble("temp") - 273.15)));
             weatherR.main.setFeels_like(Double.parseDouble(df.format(jsonObject.getJSONObject("main").getDouble("feels_like") - 273.15)));
             weatherR.main.setHumidity((int) jsonObject.getJSONObject("main").getDouble("humidity"));
+            weatherR.weather.setDesctiption(jsonObject.getJSONArray("weather").getJSONObject(0).getString("description"));
             results.add(weatherR);
             weatherR.wind = new Wind();
             weatherR.wind.setSpeed(jsonObject.getJSONObject("wind").getDouble("speed"));
