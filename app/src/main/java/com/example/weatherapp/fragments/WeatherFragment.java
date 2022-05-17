@@ -61,6 +61,9 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     TextView mainCityHum;
     TextView mainCityFeels;
     WeatherResult mainCityWeatherResult;
+    long delay = 5000; // 1 seconds after user stops typing
+    long last_text_edit = 0;
+    Handler handler = new Handler();
     private static final DecimalFormat df = new DecimalFormat("0.");
 
     final long MIN_TIME = 5000;
@@ -90,10 +93,6 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
         }
     }
 
-    long delay = 5000; // 1 seconds after user stops typing
-    long last_text_edit = 0;
-    Handler handler = new Handler();
-
     private Runnable input_finish_checker = new Runnable() {
         public void run() {
             if (System.currentTimeMillis() > (last_text_edit + delay - 500)) {
@@ -114,7 +113,6 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
             }
         }
     };
-
 
     TextWatcher coordinateTextWatcher = new TextWatcher() {
 
@@ -299,7 +297,6 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     }
  */
 
-
 /*
     private void getWeatherForCurrentLocation() {
         mLocationManager = (LocationManager) requireActivity().getSystemService(Context.LOCATION_SERVICE);
@@ -454,6 +451,4 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     public void onLoaderReset(@NonNull Loader<String> loader) {
 
     }
-
-
 }
