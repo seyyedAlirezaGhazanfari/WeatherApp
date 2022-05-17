@@ -84,7 +84,10 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        //Check if a Loader is running, if it is, reconnect to it
+        if(getActivity().getSupportLoaderManager().getLoader(0)!=null){
+            getActivity().getSupportLoaderManager().initLoader(0,null,this);
+        }
     }
 
     long delay = 5000; // 1 seconds after user stops typing
@@ -138,7 +141,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
         public void afterTextChanged(final Editable s) {
             if (s.length() > 0) {
                 last_text_edit = System.currentTimeMillis();
-                handler.postDelayed(coordinate_input_finish_checker, 1);
+                handler.postDelayed(coordinate_input_finish_checker, delay);
             } else {
 
             }
@@ -170,7 +173,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
         public void afterTextChanged(final Editable s) {
             if (s.length() > 0) {
                 last_text_edit = System.currentTimeMillis();
-                handler.postDelayed(input_finish_checker, 1);
+                handler.postDelayed(input_finish_checker, delay);
             } else {
 
             }
@@ -269,6 +272,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
         //int resourceID = Integer.parseInt(icon.getTag().toString());
 
         WeatherResult weatherResult = WeatherResult.results.get(position);
+        intent.putExtra("cityName", weatherResult.getCityName());
         int resourceID = getResources().getIdentifier(weatherResult.getMicon(), "drawable", requireActivity().getPackageName());
         intent.putExtra("iconDesc", resourceID);
         intent.putExtra("tempDesc", String.valueOf(weatherResult.getTemp()));
