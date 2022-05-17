@@ -1,7 +1,9 @@
 package com.example.weatherapp.fragments;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -429,6 +431,9 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     @Override
     public void onLoadFinished(@NonNull Loader<String> loader, String data) {
         try {
+            if (data == null) {
+                return;
+            }
             Toast.makeText(getActivity(), "Data !!!! : " + data, Toast.LENGTH_SHORT).show();
 
             JSONObject result = new JSONObject(data);

@@ -3,6 +3,7 @@ package com.example.weatherapp;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,11 +17,16 @@ import com.example.weatherapp.ui.main.SectionsPagerAdapter;
 import com.google.android.material.tabs.TabLayout;
 
 public class MainActivity extends AppCompatActivity  {
-
+    private static final String preferencesKey = "weatherApp";
+    public static SharedPreferences sharedPreferences;
+    public static ConnectivityManager connectivityManager;
     private ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        sharedPreferences = getSharedPreferences(preferencesKey, Context.MODE_PRIVATE);
+        connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
         super.onCreate(savedInstanceState);
         PreferenceManager.setDefaultValues(this, R.xml.root_preferences, false);
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
