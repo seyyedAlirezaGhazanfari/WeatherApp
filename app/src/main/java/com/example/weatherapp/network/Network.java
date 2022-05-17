@@ -19,7 +19,7 @@ import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
 
 public class Network {
 
-    static final String APP_ID = "dab3af44de7d24ae7ff86549334e45bd";
+    static final String APP_ID = "ba7e8a630bb4d31538ddf6128ceccd37";
     static final String WEATHER_URL = "api.openweathermap.org";
     static RequestParams params;
     static String mainCityResult;
@@ -29,7 +29,8 @@ public class Network {
         builder.scheme("https")
                 .appendPath("data")
                 .appendPath("2.5")
-                .appendPath("weather")
+                .appendPath("forecast")
+                //.appendPath("daily")
                 .authority(WEATHER_URL)
                 .appendQueryParameter("appid", APP_ID)
         ;

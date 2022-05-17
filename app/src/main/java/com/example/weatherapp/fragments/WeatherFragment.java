@@ -38,11 +38,13 @@ import com.example.weatherapp.models.WeatherResult;
 import com.example.weatherapp.models.Wind;
 import com.example.weatherapp.network.WeatherLoader;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnNoteListener, LoaderManager.LoaderCallbacks<String> {
@@ -72,6 +74,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     String Location_Provider = LocationManager.GPS_PROVIDER;
     LocationManager mLocationManager;
     LocationListener mLocationListner;
+    ArrayList<WeatherResult> weatherResults = new ArrayList<>();
 
     public WeatherFragment() {
     }
@@ -98,6 +101,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
             if (System.currentTimeMillis() > (last_text_edit + delay - 500)) {
                 Bundle queryBundle = new Bundle();
                 queryBundle.putString("q", cityNameOrWidthET.getText().toString());
+                queryBundle.putString("cnt", "7");
                 WeatherFragment.this.getActivity().getSupportLoaderManager().restartLoader(0, queryBundle, WeatherFragment.this);
             }
         }
@@ -109,6 +113,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
                 Bundle queryBundle = new Bundle();
                 queryBundle.putString("lat", cityNameOrWidthET.getText().toString());
                 queryBundle.putString("lon", heightET.getText().toString());
+                queryBundle.putString("cnt", "7");
                 WeatherFragment.this.getActivity().getSupportLoaderManager().restartLoader(0, queryBundle, WeatherFragment.this);
             }
         }
@@ -425,22 +430,28 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     public void onLoadFinished(@NonNull Loader<String> loader, String data) {
         try {
             Toast.makeText(getActivity(), "Data !!!! : " + data, Toast.LENGTH_SHORT).show();
-            JSONObject jsonObject = new JSONObject(data);
+
+            JSONObject result = new JSONObject(data);
+            JSONArray days = result.getJSONArray("list");
             WeatherResult weatherR = new WeatherResult();
-            df.setRoundingMode(RoundingMode.UP);
-            weatherR.setCityName(jsonObject.getString("name"));
-            weatherR.setWeather(new Weather());
-            weatherR.getWeather().setId(jsonObject.getJSONArray("weather").getJSONObject(0).getInt("id"));
-            weatherR.getWeather().setMain(jsonObject.getJSONArray("weather").getJSONObject(0).getString("main"));
-            weatherR.setMicon(WeatherResult.updateWeatherIcon(weatherR.getWeather().getId()));
-            weatherR.setMain(new Main());
-            weatherR.getMain().setTemp(Double.parseDouble(df.format(jsonObject.getJSONObject("main").getDouble("temp") - 273.15)));
-            weatherR.getMain().setFeels_like(Double.parseDouble(df.format(jsonObject.getJSONObject("main").getDouble("feels_like") - 273.15)));
-            weatherR.getMain().setHumidity((int) jsonObject.getJSONObject("main").getDouble("humidity"));
-            weatherR.getWeather().setDesctiption(jsonObject.getJSONArray("weather").getJSONObject(0).getString("description"));
-            WeatherResult.results.add(weatherR);
-            weatherR.setWind(new Wind());
-            weatherR.getWind().setSpeed(jsonObject.getJSONObject("wind").getDouble("speed"));
+
+            for(int i = 0; i<5; i++){
+                JSONObject jsonObject = ( JSONObject ) days.getJSONObject(i);
+                df.setRoundingMode(RoundingMode.UP);
+                //weatherR.setCityName(jsonObject.getString("name"));
+                weatherR.setWeather(new Weather());
+                weatherR.getWeather().setId(jsonObject.getJSONArray("weather").getJSONObject(0).getInt("id"));
+                weatherR.getWeather().setMain(jsonObject.getJSONArray("weather").getJSONObject(0).getString("main"));
+                weatherR.setMicon(WeatherResult.updateWeatherIcon(weatherR.getWeather().getId()));
+                weatherR.setMain(new Main());
+                weatherR.getMain().setTemp(Double.parseDouble(df.format(jsonObject.getJSONObject("main").getDouble("temp") - 273.15)));
+                weatherR.getMain().setFeels_like(Double.parseDouble(df.format(jsonObject.getJSONObject("main").getDouble("feels_like") - 273.15)));
+                weatherR.getMain().setHumidity((int) jsonObject.getJSONObject("main").getDouble("humidity"));
+                weatherR.getWeather().setDesctiption(jsonObject.getJSONArray("weather").getJSONObject(0).getString("description"));
+                WeatherResult.results.add(weatherR);
+                weatherR.setWind(new Wind());
+                weatherR.getWind().setSpeed(jsonObject.getJSONObject("wind").getDouble("speed"));
+            }
             updateUI(weatherR);
         } catch (JSONException e) {
             e.printStackTrace();

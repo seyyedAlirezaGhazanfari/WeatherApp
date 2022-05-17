@@ -2,13 +2,15 @@ package com.example.weatherapp.models;
 
 public class Main {
 
-    private double temp;
-    private double feels_like;
-    private double temp_min;
-    private double temp_max;
-    private int pressure;
-    private int humidity;
-
+    public double temp;
+    public double feels_like;
+    public double temp_min;
+    public double temp_max;
+    public int pressure;
+    public int sea_level;
+    public int grnd_level;
+    public int humidity;
+    public double temp_kf;
     public Main() {
     }
 
@@ -52,11 +54,35 @@ public class Main {
         this.pressure = pressure;
     }
 
+    public int getSea_level() {
+        return sea_level;
+    }
+
+    public void setSea_level(int sea_level) {
+        this.sea_level = sea_level;
+    }
+
+    public int getGrnd_level() {
+        return grnd_level;
+    }
+
+    public void setGrnd_level(int grnd_level) {
+        this.grnd_level = grnd_level;
+    }
+
     public int getHumidity() {
         return humidity;
     }
 
     public void setHumidity(int humidity) {
         this.humidity = humidity;
+    }
+
+    public double getTemp_kf() {
+        return temp_kf;
+    }
+
+    public void setTemp_kf(double temp_kf) {
+        this.temp_kf = temp_kf;
     }
 }
