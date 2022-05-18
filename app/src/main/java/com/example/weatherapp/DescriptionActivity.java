@@ -52,7 +52,7 @@ public class DescriptionActivity extends AppCompatActivity {
         try {
             int dateId = WeatherFragment.convertDayFormat(weekName);
             String date = WeatherFragment.findDayName(dateId);
-            weekView.setText(date);
+//            weekView.setText(date);
         } catch (ParseException e) {
             e.printStackTrace();
         }
