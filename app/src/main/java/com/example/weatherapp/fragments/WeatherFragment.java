@@ -414,14 +414,22 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
 
  */
 
-    @SuppressLint({"SetTextI18n", "NotifyDataSetChanged"})
+    @SuppressLint({"SetTextI18n", "NotifyDataSetChanged", "UseCompatLoadingForDrawables"})
     private void updateUI(Root root) {
         WeatherList weatherList = root.getList().get(0);
         mainCityTemp.setText(String.valueOf(weatherList.getMain().getTemp()) + "°C");
         mainCityFeels.setText("City: " + root.getCity().getName());
         int resourceID = getResources().getIdentifier(weatherList.getWeather().getIcon(), "drawable", getActivity().getPackageName());
+        int dayID = getResources().getIdentifier("day", "drawable", getActivity().getPackageName());
+        int nightID = getResources().getIdentifier("night2", "drawable", getActivity().getPackageName());
         weatherIcon.setImageResource(resourceID);
         String dayAtt = weatherList.getSys().getPod();
+        if (dayAtt.matches("d")){
+            bottomRelative.setBackground(getResources().getDrawable(dayID));
+        }
+        else if (dayAtt.matches("n")){
+            bottomRelative.setBackground(getResources().getDrawable(nightID));
+        }
         //bottomRelative.setBackground(getResources().getIdentifier());
         mainCityHum.setText("Feels like: " + String.valueOf(weatherList.getMain().getFeels_like()));
         adapter = new RecyclerviewAdapter(rootView.getContext(), root.getList(), this);
