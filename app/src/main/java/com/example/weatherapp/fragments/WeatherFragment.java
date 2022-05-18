@@ -34,8 +34,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.weatherapp.DescriptionActivity;
 import com.example.weatherapp.R;
 import com.example.weatherapp.adaptor.RecyclerviewAdapter;
+import com.example.weatherapp.models.City;
 import com.example.weatherapp.models.Main;
+import com.example.weatherapp.models.Root;
+import com.example.weatherapp.models.Sys;
 import com.example.weatherapp.models.Weather;
+import com.example.weatherapp.models.WeatherList;
 import com.example.weatherapp.models.WeatherResult;
 import com.example.weatherapp.models.Wind;
 import com.example.weatherapp.network.WeatherLoader;
@@ -48,6 +52,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnNoteListener, LoaderManager.LoaderCallbacks<String> {
 
@@ -64,12 +69,14 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     TextView mainCityTemp;
     TextView mainCityHum;
     TextView mainCityFeels;
+    RelativeLayout bottomRelative;
+    Root root = new Root();
     WeatherResult mainCityWeatherResult;
     long delay = 5000; // 1 seconds after user stops typing
     long last_text_edit = 0;
     Handler handler = new Handler();
     private static final DecimalFormat df = new DecimalFormat("0.");
-
+    ArrayList<WeatherList> list = new ArrayList<>();
     final long MIN_TIME = 5000;
     final float MIN_DISTANCE = 1000;
     final int REQUEST_CODE = 101;
@@ -186,6 +193,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     };
 
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -196,7 +204,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
         coorRadioBtn = topRelativeLayout.findViewById(R.id.coorRatioBtn);
         cityRadioBtn = topRelativeLayout.findViewById(R.id.cityNameRatioBtn);
 
-        RelativeLayout bottomRelative = rootView.findViewById(R.id.bottentRelativeId);
+        bottomRelative = rootView.findViewById(R.id.bottentRelativeId);
         weatherIcon = bottomRelative.findViewById(R.id.weatherIconId);
 
         layoutMainCity = bottomRelative.findViewById(R.id.layoutMainCityId);
@@ -259,9 +267,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
 
 
         recyclerView = bottomRelative.findViewById(R.id.recyclerviewId);
-        adapter = new RecyclerviewAdapter(rootView.getContext(), WeatherResult.results, this);
-        recyclerView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
+        list = root.getList();
 
         return rootView;
     }
@@ -276,14 +282,14 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
         );
         //int resourceID = Integer.parseInt(icon.getTag().toString());
 
-        WeatherResult weatherResult = WeatherResult.results.get(position);
-        intent.putExtra("cityName", weatherResult.getCityName());
-        int resourceID = getResources().getIdentifier(weatherResult.getMicon(), "drawable", requireActivity().getPackageName());
+        WeatherList weatherList = root.getList().get(position);
+        intent.putExtra("cityName", root.getCity().getName());
+        int resourceID = getResources().getIdentifier(weatherList.getWeather().getIcon(), "drawable", requireActivity().getPackageName());
         intent.putExtra("iconDesc", resourceID);
-        intent.putExtra("tempDesc", String.valueOf(weatherResult.getTemp()));
-        intent.putExtra("feelsLikeDesc", String.valueOf(weatherResult.getMain().getFeels_like()));
-        intent.putExtra("humidityDesc", String.valueOf(weatherResult.getMain().getHumidity()));
-        intent.putExtra("description", weatherResult.getWeather().getDesctiption());
+        intent.putExtra("tempDesc", String.valueOf(weatherList.getMain().getTemp()));
+        intent.putExtra("feelsLikeDesc", String.valueOf(weatherList.getMain().getFeels_like()));
+        intent.putExtra("humidityDesc", String.valueOf(weatherList.getMain().getHumidity()));
+        intent.putExtra("description", weatherList.getWeather().getDesctiption());
         startActivity(intent);
 
     }
@@ -364,7 +370,6 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
 
         if (requestCode == REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(getActivity(), "Locationget Succesffully", Toast.LENGTH_SHORT).show();
                 //getWeatherForCurrentLocation();
             } else {
                 //user denied the permission
@@ -405,13 +410,19 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
 
  */
 
-    @SuppressLint("SetTextI18n")
-    private void updateUI(WeatherResult weather) {
-        mainCityTemp.setText(String.valueOf(weather.getTemp()) + "°C");
-        mainCityFeels.setText("City: " + weather.getCityName());
-        int resourceID = getResources().getIdentifier(weather.getMicon(), "drawable", getActivity().getPackageName());
+    @SuppressLint({"SetTextI18n", "NotifyDataSetChanged"})
+    private void updateUI(Root root) {
+        WeatherList weatherList = root.getList().get(0);
+        mainCityTemp.setText(String.valueOf(weatherList.getMain().getTemp()) + "°C");
+        mainCityFeels.setText("City: " + root.getCity().getName());
+        int resourceID = getResources().getIdentifier(weatherList.getWeather().getIcon(), "drawable", getActivity().getPackageName());
         weatherIcon.setImageResource(resourceID);
-        mainCityHum.setText("Feels like: " + String.valueOf(weather.getMain().getFeels_like()));
+        String dayAtt = weatherList.getSys().getPod();
+        //bottomRelative.setBackground(getResources().getIdentifier());
+        mainCityHum.setText("Feels like: " + String.valueOf(weatherList.getMain().getFeels_like()));
+        adapter = new RecyclerviewAdapter(rootView.getContext(), root.getList(), this);
+        recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -434,30 +445,34 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
             if (data == null) {
                 return;
             }
-            Toast.makeText(getActivity(), "Data !!!! : " + data, Toast.LENGTH_SHORT).show();
 
             JSONObject result = new JSONObject(data);
             JSONArray days = result.getJSONArray("list");
-            WeatherResult weatherR = new WeatherResult();
+            root = new Root();
+            City city = new City();
+            city.setName(result.getJSONObject("city").getString("name"));
+            root.setCity(city);
 
-            for(int i = 0; i<5; i++){
+            for(int i = 0; i<7; i++){
                 JSONObject jsonObject = ( JSONObject ) days.getJSONObject(i);
                 df.setRoundingMode(RoundingMode.UP);
-                //weatherR.setCityName(jsonObject.getString("name"));
-                weatherR.setWeather(new Weather());
-                weatherR.getWeather().setId(jsonObject.getJSONArray("weather").getJSONObject(0).getInt("id"));
-                weatherR.getWeather().setMain(jsonObject.getJSONArray("weather").getJSONObject(0).getString("main"));
-                weatherR.setMicon(WeatherResult.updateWeatherIcon(weatherR.getWeather().getId()));
-                weatherR.setMain(new Main());
-                weatherR.getMain().setTemp(Double.parseDouble(df.format(jsonObject.getJSONObject("main").getDouble("temp") - 273.15)));
-                weatherR.getMain().setFeels_like(Double.parseDouble(df.format(jsonObject.getJSONObject("main").getDouble("feels_like") - 273.15)));
-                weatherR.getMain().setHumidity((int) jsonObject.getJSONObject("main").getDouble("humidity"));
-                weatherR.getWeather().setDesctiption(jsonObject.getJSONArray("weather").getJSONObject(0).getString("description"));
-                WeatherResult.results.add(weatherR);
-                weatherR.setWind(new Wind());
-                weatherR.getWind().setSpeed(jsonObject.getJSONObject("wind").getDouble("speed"));
+                WeatherList weatherList = new WeatherList();
+                weatherList.setMain(new Main());
+                weatherList.getMain().setTemp(Double.parseDouble(df.format(jsonObject.getJSONObject("main").getDouble("temp") - 273.15)));
+                weatherList.getMain().setHumidity((int) jsonObject.getJSONObject("main").getDouble("humidity"));
+                weatherList.getMain().setFeels_like(Double.parseDouble(df.format(jsonObject.getJSONObject("main").getDouble("feels_like") - 273.15)));
+                weatherList.setWeather(new Weather());
+                weatherList.getWeather().setId(jsonObject.getJSONArray("weather").getJSONObject(0).getInt("id"));
+                weatherList.getWeather().setMain(jsonObject.getJSONArray("weather").getJSONObject(0).getString("main"));
+                weatherList.getWeather().setIcon(WeatherResult.updateWeatherIcon(weatherList.getWeather().getId()));
+                weatherList.getWeather().setDesctiption(jsonObject.getJSONArray("weather").getJSONObject(0).getString("description"));
+                weatherList.setWind(new Wind());
+                weatherList.getWind().setSpeed(jsonObject.getJSONObject("wind").getDouble("speed"));
+                weatherList.setSys(new Sys());
+                weatherList.getSys().setPod(jsonObject.getJSONObject("sys").getString("pod"));
+                root.getList().add(weatherList);
             }
-            updateUI(weatherR);
+            updateUI(root);
         } catch (JSONException e) {
             e.printStackTrace();
         }

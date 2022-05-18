@@ -129,32 +129,28 @@ public class WeatherResult {
     {
         if(condition>=0 && condition<=300)
         {
-            return "thunder_cloud_rain";
+            return "thunder";
         }
         else if(condition>=300 && condition<=500)
         {
-            return "rain";
+            return "sun_rain";
         }
         else if(condition>=500 && condition<=600)
         {
-            return "thunder_cloud_rain";
+            return "rain";
         }
         else  if(condition>=600 && condition<=700)
         {
-            return "snow";
+            return "snow_cloud";
         }
         else if(condition>=701 && condition<=771)
         {
-            return "moon_cloud";
+            return "cloud_fog";
         }
 
         else if(condition>=772 && condition<=800)
         {
-            return "overcast";
-        }
-        else if(condition==800)
-        {
-            return "sun";
+            return "cloudy";
         }
         else if(condition>=801 && condition<=804)
         {
@@ -164,20 +160,22 @@ public class WeatherResult {
         {
             return "thunder";
         }
-        if(condition==903)
+        else if(condition==903)
         {
-            return "very_snow_cloud";
+            return "snow";
         }
-        if(condition==904)
+        else if(condition==904)
         {
-            return "sun_cloud";
+            return "sun";
         }
-        if(condition>=905 && condition<=1000)
+        else if(condition>=905 && condition<=1000)
         {
-            return "thunder";
+            return "thunder_cloud_rain";
+        }
+        else {
+            return "question";
         }
 
-        return "dunno";
     }
 
     public Coord getCoord() {

@@ -1,12 +1,13 @@
 package com.example.weatherapp.models;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Root {
     public String cod;
     public int message;
     public int cnt;
-    public List<WeatherList> list;
+    public ArrayList<WeatherList> list = new ArrayList<>();
     public City city;
 
     public Root() {
@@ -28,6 +29,14 @@ public class Root {
         this.message = message;
     }
 
+    public ArrayList<WeatherList> getList() {
+        return list;
+    }
+
+    public void setList(ArrayList<WeatherList> list) {
+        this.list = list;
+    }
+
     public int getCnt() {
         return cnt;
     }
@@ -36,13 +45,7 @@ public class Root {
         this.cnt = cnt;
     }
 
-    public List<WeatherList> getList() {
-        return list;
-    }
 
-    public void setList(List<WeatherList> list) {
-        this.list = list;
-    }
 
     public City getCity() {
         return city;

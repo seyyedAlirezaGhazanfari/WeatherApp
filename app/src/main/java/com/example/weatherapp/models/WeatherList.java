@@ -5,7 +5,7 @@ import java.util.List;
 public class WeatherList {
     public int dt;
     public Main main;
-    public List<Weather> weather;
+    public Weather weather;
     public Cloud cloud;
     public Wind wind;
     public int visibility;
@@ -32,11 +32,11 @@ public class WeatherList {
         this.main = main;
     }
 
-    public List<Weather> getWeather() {
+    public Weather getWeather() {
         return weather;
     }
 
-    public void setWeather(List<Weather> weather) {
+    public void setWeather(Weather weather) {
         this.weather = weather;
     }
 
