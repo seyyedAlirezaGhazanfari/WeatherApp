@@ -1,7 +1,9 @@
 package com.example.weatherapp.fragments;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -32,8 +34,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.weatherapp.DescriptionActivity;
 import com.example.weatherapp.R;
 import com.example.weatherapp.adaptor.RecyclerviewAdapter;
+import com.example.weatherapp.models.City;
 import com.example.weatherapp.models.Main;
+import com.example.weatherapp.models.Root;
+import com.example.weatherapp.models.Sys;
 import com.example.weatherapp.models.Weather;
+import com.example.weatherapp.models.WeatherList;
 import com.example.weatherapp.models.WeatherResult;
 import com.example.weatherapp.models.Wind;
 import com.example.weatherapp.network.WeatherLoader;
@@ -45,12 +51,14 @@ import org.json.JSONObject;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnNoteListener, LoaderManager.LoaderCallbacks<String> {
 
     View rootView;
     RadioGroup radioGroup;
-    RadioButton coordinationRadioButton;
+    RadioButton coorRadioBtn;
     RadioButton cityRadioBtn;
     ImageView weatherIcon;
     RecyclerView recyclerView;
@@ -61,12 +69,14 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     TextView mainCityTemp;
     TextView mainCityHum;
     TextView mainCityFeels;
+    RelativeLayout bottomRelative;
+    Root root = new Root();
     WeatherResult mainCityWeatherResult;
-    long delay = 5000;
+    long delay = 5000; // 1 seconds after user stops typing
     long last_text_edit = 0;
     Handler handler = new Handler();
     private static final DecimalFormat df = new DecimalFormat("0.");
-
+    ArrayList<WeatherList> list = new ArrayList<>();
     final long MIN_TIME = 5000;
     final float MIN_DISTANCE = 1000;
     final int REQUEST_CODE = 101;
@@ -89,38 +99,37 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (requireActivity().getSupportLoaderManager().getLoader(0) != null) {
-            requireActivity().getSupportLoaderManager().initLoader(0, null, this);
+        //Check if a Loader is running, if it is, reconnect to it
+        if(getActivity().getSupportLoaderManager().getLoader(0)!=null){
+            getActivity().getSupportLoaderManager().initLoader(0,null,this);
         }
     }
 
-    private final Runnable input_finish_checker = new Runnable() {
+    private Runnable input_finish_checker = new Runnable() {
         public void run() {
             if (System.currentTimeMillis() > (last_text_edit + delay - 500)) {
                 Bundle queryBundle = new Bundle();
                 queryBundle.putString("q", cityNameOrWidthET.getText().toString());
                 queryBundle.putString("cnt", "7");
-                WeatherFragment.this.requireActivity().getSupportLoaderManager().restartLoader(
-                        0, queryBundle, WeatherFragment.this
-                );
+                WeatherFragment.this.getActivity().getSupportLoaderManager().restartLoader(0, queryBundle, WeatherFragment.this);
             }
         }
     };
 
-    private final Runnable coordinate_input_finish_checker = new Runnable() {
+    private Runnable coordinate_input_finish_checker = new Runnable() {
         public void run() {
             if (System.currentTimeMillis() > (last_text_edit + delay - 500)) {
                 Bundle queryBundle = new Bundle();
                 queryBundle.putString("lat", cityNameOrWidthET.getText().toString());
                 queryBundle.putString("lon", heightET.getText().toString());
                 queryBundle.putString("cnt", "7");
-                WeatherFragment.this.requireActivity().getSupportLoaderManager().restartLoader(
-                        0, queryBundle, WeatherFragment.this
-                );
+                WeatherFragment.this.getActivity().getSupportLoaderManager().restartLoader(0, queryBundle, WeatherFragment.this);
             }
         }
     };
+
     TextWatcher coordinateTextWatcher = new TextWatcher() {
+
         @Override
         public void beforeTextChanged(
                 CharSequence s,
@@ -145,11 +154,14 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
             if (s.length() > 0) {
                 last_text_edit = System.currentTimeMillis();
                 handler.postDelayed(coordinate_input_finish_checker, delay);
+            } else {
+
             }
         }
     };
 
     TextWatcher textWatcher = new TextWatcher() {
+
         @Override
         public void beforeTextChanged(
                 CharSequence s,
@@ -174,100 +186,112 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
             if (s.length() > 0) {
                 last_text_edit = System.currentTimeMillis();
                 handler.postDelayed(input_finish_checker, delay);
+            } else {
+
             }
         }
     };
 
-
-    View.OnClickListener coordinationButtonHandler = new View.OnClickListener() {
-        @SuppressLint("SetTextI18n")
-        @Override
-        public void onClick(View view) {
-            cityNameOrWidthET.setText("");
-            heightET.setText("");
-            cityNameOrWidthET.setVisibility(View.VISIBLE);
-            heightET.setVisibility(View.VISIBLE);
-            cityNameOrWidthET.setHint(R.string.width);
-            heightET.setHint(R.string.height);
-            cityNameOrWidthET.setInputType(InputType.TYPE_CLASS_NUMBER);
-            heightET.setInputType(InputType.TYPE_CLASS_NUMBER);
-            Toast.makeText(getActivity(), coordinationRadioButton.getText().toString(), Toast.LENGTH_SHORT).show();
-            cityNameOrWidthET.removeTextChangedListener(textWatcher);
-            cityNameOrWidthET.addTextChangedListener(coordinateTextWatcher);
-
-        }
-    };
-    View.OnClickListener cityButtonHandler = new View.OnClickListener() {
-        @SuppressLint("SetTextI18n")
-        @Override
-        public void onClick(View view) {
-            cityNameOrWidthET.setText("");
-            heightET.setText("");
-            cityNameOrWidthET.setVisibility(View.VISIBLE);
-            heightET.setVisibility(View.INVISIBLE);
-            cityNameOrWidthET.setHint("City Name");
-            cityNameOrWidthET.setInputType(InputType.TYPE_CLASS_TEXT);
-            Toast.makeText(getActivity(), cityRadioBtn.getText().toString(), Toast.LENGTH_SHORT).show();
-
-            cityNameOrWidthET.removeTextChangedListener(coordinateTextWatcher);
-            cityNameOrWidthET.addTextChangedListener(textWatcher);
-        }
-    };
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_weather, container, false);
+        // Inflate the layout for this fragment
         RelativeLayout topRelativeLayout = rootView.findViewById(R.id.relative_layout);
         radioGroup = topRelativeLayout.findViewById(R.id.radio_group);
-        coordinationRadioButton = topRelativeLayout.findViewById(R.id.coorRatioBtn);
+        coorRadioBtn = topRelativeLayout.findViewById(R.id.coorRatioBtn);
         cityRadioBtn = topRelativeLayout.findViewById(R.id.cityNameRatioBtn);
-        RelativeLayout bottomRelative = rootView.findViewById(R.id.bottentRelativeId);
+
+        bottomRelative = rootView.findViewById(R.id.bottentRelativeId);
         weatherIcon = bottomRelative.findViewById(R.id.weatherIconId);
+
         layoutMainCity = bottomRelative.findViewById(R.id.layoutMainCityId);
         mainCityTemp = layoutMainCity.findViewById(R.id.temperatureId);
         mainCityHum = layoutMainCity.findViewById(R.id.humiId);
         mainCityFeels = layoutMainCity.findViewById(R.id.feelsLikeId);
+
+
         cityNameOrWidthET = bottomRelative.findViewById(R.id.locationInputView);
         heightET = bottomRelative.findViewById(R.id.latitudeView);
         recyclerView = bottomRelative.findViewById(R.id.recyclerviewId);
-        recyclerView = bottomRelative.findViewById(R.id.recyclerviewId);
-        // handlers
+
+        // not clean at all !
+        cityNameOrWidthET.setText("");
+        heightET.setText("");
+        cityNameOrWidthET.setVisibility(View.VISIBLE);
+        heightET.setVisibility(View.VISIBLE);
+        cityNameOrWidthET.setHint("Width");
+        heightET.setHint("Height");
+        cityNameOrWidthET.setInputType(InputType.TYPE_CLASS_NUMBER);
+        heightET.setInputType(InputType.TYPE_CLASS_NUMBER);
         cityNameOrWidthET.addTextChangedListener(coordinateTextWatcher);
         heightET.addTextChangedListener(coordinateTextWatcher);
-        coordinationRadioButton.setOnClickListener(coordinationButtonHandler);
-        cityRadioBtn.setOnClickListener(cityButtonHandler);
-        //adapter
-        adapter = new RecyclerviewAdapter(
-                rootView.getContext(),
-                WeatherResult.results,
-                this
-        );
-        recyclerView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
+
+        coorRadioBtn.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onClick(View view) {
+                cityNameOrWidthET.setText("");
+                heightET.setText("");
+                cityNameOrWidthET.setVisibility(View.VISIBLE);
+                heightET.setVisibility(View.VISIBLE);
+                cityNameOrWidthET.setHint("Width");
+                heightET.setHint("Height");
+                cityNameOrWidthET.setInputType(InputType.TYPE_CLASS_NUMBER);
+                heightET.setInputType(InputType.TYPE_CLASS_NUMBER);
+                Toast.makeText(getActivity(), coorRadioBtn.getText().toString(), Toast.LENGTH_SHORT).show();
+                cityNameOrWidthET.removeTextChangedListener(textWatcher);
+                cityNameOrWidthET.addTextChangedListener(coordinateTextWatcher);
+
+            }
+        });
+
+        cityRadioBtn.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onClick(View view) {
+                cityNameOrWidthET.setText("");
+                heightET.setText("");
+                cityNameOrWidthET.setVisibility(View.VISIBLE);
+                heightET.setVisibility(View.INVISIBLE);
+                cityNameOrWidthET.setHint("City Name");
+                cityNameOrWidthET.setInputType(InputType.TYPE_CLASS_TEXT);
+                Toast.makeText(getActivity(), cityRadioBtn.getText().toString(), Toast.LENGTH_SHORT).show();
+
+                cityNameOrWidthET.removeTextChangedListener(coordinateTextWatcher);
+                cityNameOrWidthET.addTextChangedListener(textWatcher);
+            }
+        });
+
+
+        recyclerView = bottomRelative.findViewById(R.id.recyclerviewId);
+        list = root.getList();
+
         return rootView;
     }
 
     @Override
     public void OnNoteListener(ImageView icon, TextView temp, TextView feelsLike, TextView humidity, int position) {
+        Toast toast = Toast.makeText(getActivity(), "CLICKED", Toast.LENGTH_SHORT);
+        toast.show();
         Intent intent = new Intent(
                 this.getActivity(),
                 DescriptionActivity.class
         );
-        WeatherResult weatherResult = WeatherResult.results.get(position);
-        intent.putExtra("cityName", weatherResult.getCityName());
-        int resourceID = getResources().getIdentifier(
-                weatherResult.getMicon(),
-                "drawable",
-                requireActivity().getPackageName()
-        );
+        //int resourceID = Integer.parseInt(icon.getTag().toString());
+
+        WeatherList weatherList = root.getList().get(position);
+        intent.putExtra("cityName", root.getCity().getName());
+        int resourceID = getResources().getIdentifier(weatherList.getWeather().getIcon(), "drawable", requireActivity().getPackageName());
         intent.putExtra("iconDesc", resourceID);
-        intent.putExtra("tempDesc", String.valueOf(weatherResult.getTemp()));
-        intent.putExtra("feelsLikeDesc", String.valueOf(weatherResult.getMain().getFeels_like()));
-        intent.putExtra("humidityDesc", String.valueOf(weatherResult.getMain().getHumidity()));
-        intent.putExtra("description", weatherResult.getWeather().getDescription());
+        intent.putExtra("tempDesc", String.valueOf(weatherList.getMain().getTemp()));
+        intent.putExtra("feelsLikeDesc", String.valueOf(weatherList.getMain().getFeels_like()));
+        intent.putExtra("humidityDesc", String.valueOf(weatherList.getMain().getHumidity()));
+        intent.putExtra("description", weatherList.getWeather().getDescription());
         startActivity(intent);
+
     }
 
 
@@ -346,7 +370,6 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
 
         if (requestCode == REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(getActivity(), "Location has been gotten Successfully", Toast.LENGTH_SHORT).show();
                 //getWeatherForCurrentLocation();
             } else {
                 //user denied the permission
@@ -356,17 +379,50 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
 
     }
 
-    @SuppressLint("SetTextI18n")
-    private void updateUI(WeatherResult weather) {
-        mainCityTemp.setText(String.valueOf(weather.getTemp()) + "°C");
-        mainCityFeels.setText("City: " + weather.getCityName());
-        int resourceID = getResources().getIdentifier(
-                weather.getMicon(),
-                "drawable",
-                requireActivity().getPackageName()
-        );
+/*
+    private void letsdoSomeNetworking(RequestParams params) {
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.get(WEATHER_URL, params, new JsonHttpResponseHandler() {
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+
+                Toast.makeText(getContext(), "Data Get Success", Toast.LENGTH_SHORT).show();
+
+                if (mainCityWeatherResult == null) {
+                    mainCityWeatherResult = WeatherResult.fromJson(response);
+                    updateUI(mainCityWeatherResult);
+                    super.onSuccess(statusCode, headers, response);
+                } else {
+
+                }
+            }
+
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+            }
+        });
+
+
+    }
+
+ */
+
+    @SuppressLint({"SetTextI18n", "NotifyDataSetChanged"})
+    private void updateUI(Root root) {
+        WeatherList weatherList = root.getList().get(0);
+        mainCityTemp.setText(String.valueOf(weatherList.getMain().getTemp()) + "°C");
+        mainCityFeels.setText("City: " + root.getCity().getName());
+        int resourceID = getResources().getIdentifier(weatherList.getWeather().getIcon(), "drawable", getActivity().getPackageName());
         weatherIcon.setImageResource(resourceID);
-        mainCityHum.setText("Feels like: " + String.valueOf(weather.getMain().getFeels_like()));
+        String dayAtt = weatherList.getSys().getPod();
+        //bottomRelative.setBackground(getResources().getIdentifier());
+        mainCityHum.setText("Feels like: " + String.valueOf(weatherList.getMain().getFeels_like()));
+        adapter = new RecyclerviewAdapter(rootView.getContext(), root.getList(), this);
+        recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -380,7 +436,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     @NonNull
     @Override
     public Loader<String> onCreateLoader(int id, @Nullable Bundle args) {
-        return new WeatherLoader(requireContext(), args);
+        return new WeatherLoader(getContext(), args);
     }
 
     @Override
@@ -389,36 +445,37 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
             if (data == null) {
                 return;
             }
-            Toast.makeText(getActivity(), "Data !!!! : " + data, Toast.LENGTH_SHORT).show();
 
             JSONObject result = new JSONObject(data);
             JSONArray days = result.getJSONArray("list");
-            WeatherResult weatherR = new WeatherResult();
+            root = new Root();
+            City city = new City();
+            city.setName(result.getJSONObject("city").getString("name"));
+            root.setCity(city);
 
-            for (int i = 0; i < 5; i++) {
-                JSONObject jsonObject = (JSONObject) days.getJSONObject(i);
+            for(int i = 0; i<7; i++){
+                JSONObject jsonObject = ( JSONObject ) days.getJSONObject(i);
                 df.setRoundingMode(RoundingMode.UP);
-                //weatherR.setCityName(jsonObject.getString("name"));
-                Weather weather = new Weather(
-                        jsonObject.getJSONArray("weather").getJSONObject(0).getInt("id"),
-                        jsonObject.getJSONArray("weather").getJSONObject(0).getString("main"),
-                        jsonObject.getJSONArray("weather").getJSONObject(0).getString("description")
-                );
-                Main main = new Main(
+                WeatherList weatherList = new WeatherList();
+                weatherList.setMain(new Main(
                         Double.parseDouble(df.format(jsonObject.getJSONObject("main").getDouble("temp") - 273.15)),
                         Double.parseDouble(df.format(jsonObject.getJSONObject("main").getDouble("feels_like") - 273.15)),
                         (int) jsonObject.getJSONObject("main").getDouble("humidity")
-                );
-                Wind wind = new Wind(
+                ));
+                weatherList.setWeather(new Weather(
+                        jsonObject.getJSONArray("weather").getJSONObject(0).getInt("id"),
+                        jsonObject.getJSONArray("weather").getJSONObject(0).getString("main"),
+                        jsonObject.getJSONArray("weather").getJSONObject(0).getString("description")
+                ));
+                weatherList.getWeather().setIcon(WeatherResult.updateWeatherIcon(weatherList.getWeather().getId()));
+                weatherList.setWind(new Wind(
                         jsonObject.getJSONObject("wind").getDouble("speed")
-                );
-                weatherR.setWeather(weather);
-                weatherR.setMicon(WeatherResult.updateWeatherIcon(weatherR.getWeather().getId()));
-                weatherR.setMain(main);
-                WeatherResult.results.add(weatherR);
-                weatherR.setWind(wind);
+                ));
+                weatherList.setSys(new Sys());
+                weatherList.getSys().setPod(jsonObject.getJSONObject("sys").getString("pod"));
+                root.getList().add(weatherList);
             }
-            updateUI(weatherR);
+            updateUI(root);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -426,5 +483,6 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
 
     @Override
     public void onLoaderReset(@NonNull Loader<String> loader) {
+
     }
 }

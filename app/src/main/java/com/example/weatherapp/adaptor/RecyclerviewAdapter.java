@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,16 +18,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.weatherapp.R;
 import com.example.weatherapp.models.Weather;
+import com.example.weatherapp.models.WeatherList;
 import com.example.weatherapp.models.WeatherResult;
 
 import java.util.ArrayList;
 
 public class RecyclerviewAdapter extends RecyclerView.Adapter<RecyclerviewAdapter.ViewHolder> {
-    ArrayList<WeatherResult> weathers_in_weak;
+    ArrayList<WeatherList> weathers_in_weak;
     private LayoutInflater inflater;
     OnNoteListener onNoteListener;
 
-    public RecyclerviewAdapter(Context context, ArrayList<WeatherResult> weathers_in_weak, OnNoteListener onNoteListener) {
+    public RecyclerviewAdapter(Context context, ArrayList<WeatherList> weathers_in_weak, OnNoteListener onNoteListener) {
         this.weathers_in_weak = weathers_in_weak;
         this.inflater = LayoutInflater.from(context);
         this.onNoteListener = onNoteListener;
@@ -53,20 +55,20 @@ public class RecyclerviewAdapter extends RecyclerView.Adapter<RecyclerviewAdapte
 
         Context context = inflater.getContext();
         Resources resources = context.getResources();
-        int resourceID=resources.getIdentifier(weathers_in_weak.get(position).getMicon(),"drawable",context.getPackageName());
+        int resourceID=resources.getIdentifier(weathers_in_weak.get(position).getWeather().getIcon(),"drawable",context.getPackageName());
         holder.icon.getContext();
         holder.icon.setImageResource(resourceID);
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    void addItems(ArrayList<WeatherResult> w) {
+    void addItems(ArrayList<WeatherList> w) {
         weathers_in_weak.addAll(w);
         notifyDataSetChanged();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        LinearLayout recRowLayout;
+        RelativeLayout recRowLayout;
         TextView temperature;
         TextView feelsLike;
         TextView humidity;

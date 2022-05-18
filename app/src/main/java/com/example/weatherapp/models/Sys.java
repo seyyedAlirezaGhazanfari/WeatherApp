@@ -6,6 +6,7 @@ public class Sys {
     private String country;
     private int sunrise;
     private int sunset;
+    private String pod;
 
     public Sys() {
     }
@@ -48,5 +49,13 @@ public class Sys {
 
     public void setSunset(int sunset) {
         this.sunset = sunset;
+    }
+
+    public String getPod() {
+        return pod;
+    }
+
+    public void setPod(String pod) {
+        this.pod = pod;
     }
 }
