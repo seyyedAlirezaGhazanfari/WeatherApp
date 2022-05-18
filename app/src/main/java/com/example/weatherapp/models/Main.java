@@ -11,7 +11,11 @@ public class Main {
     public int grnd_level;
     public int humidity;
     public double temp_kf;
-    public Main() {
+
+    public Main(double temp, double feels_like, int humidity) {
+        this.temp = temp;
+        this.feels_like = feels_like;
+        this.humidity = humidity;
     }
 
     public double getTemp() {

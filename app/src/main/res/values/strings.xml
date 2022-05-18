@@ -28,4 +28,6 @@
     <string name="feelsLikeLabel">feels like:</string>
     <string name="tempLabel">temp:</string>
     <string name="weatherDescriptionLabel">Weather Description</string>
+    <string name="width">Width</string>
+    <string name="height">Height</string>
 </resources>

@@ -131,8 +131,9 @@
             android:layout_marginStart="17dp"
             android:layout_marginTop="27dp"
             android:ems="10"
-            android:hint="longitude"
+            android:hint="@string/height"
             android:inputType="numberSigned"
+            android:textColor="@color/white"
             android:textColorHint="@color/white" />
 
         <EditText
@@ -146,7 +147,7 @@
             android:layout_marginEnd="17dp"
             android:layout_toEndOf="@+id/locationInputView"
             android:ems="10"
-            android:hint="latitude"
+            android:hint="@string/width"
             android:inputType="number"
             android:textColorHint="@color/white"
             android:visibility="visible" />

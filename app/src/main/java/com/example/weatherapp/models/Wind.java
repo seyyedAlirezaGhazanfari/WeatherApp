@@ -4,7 +4,8 @@ public class Wind {
     private double speed;
     private int deg;
 
-    public Wind() {
+    public Wind(double speed) {
+        this.speed = speed;
     }
 
     public double getSpeed() {

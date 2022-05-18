@@ -1,14 +1,15 @@
 package com.example.weatherapp.models;
 
-import java.util.ArrayList;
-
 public class Weather {
     private int id;
     private String main;
     private String icon;
-    private String desctiption;
+    private String description;
 
-    public Weather() {
+    public Weather(int id, String main, String description) {
+        this.id = id;
+        this.main = main;
+        this.description = description;
     }
 
     public int getId() {
@@ -35,11 +36,11 @@ public class Weather {
         this.icon = icon;
     }
 
-    public String getDesctiption() {
-        return desctiption;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDesctiption(String desctiption) {
-        this.desctiption = desctiption;
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
