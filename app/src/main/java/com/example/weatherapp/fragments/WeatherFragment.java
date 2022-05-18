@@ -1,10 +1,12 @@
 package com.example.weatherapp.fragments;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -26,6 +28,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
@@ -43,6 +46,7 @@ import com.example.weatherapp.models.WeatherList;
 import com.example.weatherapp.models.WeatherResult;
 import com.example.weatherapp.models.Wind;
 import com.example.weatherapp.network.WeatherLoader;
+import com.loopj.android.http.RequestParams;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -298,7 +302,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     @Override
     public void onResume() {
         super.onResume();
-        //getWeatherForCurrentLocation();
+        getWeatherForCurrentLocation();
     }
 
 /*
@@ -310,7 +314,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     }
  */
 
-/*
+
     private void getWeatherForCurrentLocation() {
         mLocationManager = (LocationManager) requireActivity().getSystemService(Context.LOCATION_SERVICE);
         mLocationListner = new LocationListener() {
@@ -319,14 +323,14 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
                 Toast.makeText(getActivity(), "on location changed", Toast.LENGTH_SHORT).show();
                 String Latitude = String.valueOf(location.getLatitude());
                 String Longitude = String.valueOf(location.getLongitude());
-
-                RequestParams params = new RequestParams();
-                params.put("lat", Latitude);
-                params.put("lon", Longitude);
-                params.put("appid", APP_ID);
-                Toast.makeText(getActivity(), Latitude, Toast.LENGTH_SHORT).show();
-                letsdoSomeNetworking(params);
-
+                //RequestParams params = new RequestParams();
+                //params.put("lat", Latitude);
+                //params.put("lon", Longitude);
+                //params.put("appid", APP_ID);
+                Bundle queryBundle = new Bundle();
+                queryBundle.putString("lat", Latitude);
+                queryBundle.putString("lon", Longitude);
+                WeatherFragment.this.getActivity().getSupportLoaderManager().restartLoader(0, queryBundle, WeatherFragment.this);
             }
 
             @Override
@@ -361,7 +365,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
         mLocationManager.requestLocationUpdates(mLocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, (LocationListener) mLocationListner);
         mLocationManager.requestLocationUpdates(mLocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, (LocationListener) mLocationListner);
     }
-*/
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
