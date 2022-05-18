@@ -53,13 +53,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.math.RoundingMode;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnNoteListener, LoaderManager.LoaderCallbacks<String> {
-
+    TextView todayView;
     View rootView;
     RadioGroup radioGroup;
     RadioButton coorRadioBtn;
@@ -103,9 +108,10 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //getWeatherForCurrentLocation();
         //Check if a Loader is running, if it is, reconnect to it
-        if(getActivity().getSupportLoaderManager().getLoader(0)!=null){
-            getActivity().getSupportLoaderManager().initLoader(0,null,this);
+        if (getActivity().getSupportLoaderManager().getLoader(0) != null) {
+            getActivity().getSupportLoaderManager().initLoader(0, null, this);
         }
     }
 
@@ -215,8 +221,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
         mainCityTemp = layoutMainCity.findViewById(R.id.temperatureId);
         mainCityHum = layoutMainCity.findViewById(R.id.humiId);
         mainCityFeels = layoutMainCity.findViewById(R.id.feelsLikeId);
-
-
+        todayView = bottomRelative.findViewById(R.id.todayViewId);
         cityNameOrWidthET = bottomRelative.findViewById(R.id.locationInputView);
         heightET = bottomRelative.findViewById(R.id.latitudeView);
         recyclerView = bottomRelative.findViewById(R.id.recyclerviewId);
@@ -277,7 +282,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     }
 
     @Override
-    public void OnNoteListener(ImageView icon, TextView temp, TextView feelsLike, TextView humidity, int position) {
+    public void OnNoteListener(ImageView icon, TextView temp, TextView feelsLike, TextView humidity, int position) throws ParseException {
         Toast toast = Toast.makeText(getActivity(), "CLICKED", Toast.LENGTH_SHORT);
         toast.show();
         Intent intent = new Intent(
@@ -294,6 +299,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
         intent.putExtra("feelsLikeDesc", String.valueOf(weatherList.getMain().getFeels_like()));
         intent.putExtra("humidityDesc", String.valueOf(weatherList.getMain().getHumidity()));
         intent.putExtra("description", weatherList.getWeather().getDescription());
+        intent.putExtra("dateName", weatherList.getDt_txt());
         startActivity(intent);
 
     }
@@ -302,7 +308,6 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
     @Override
     public void onResume() {
         super.onResume();
-        getWeatherForCurrentLocation();
     }
 
 /*
@@ -415,7 +420,7 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
  */
 
     @SuppressLint({"SetTextI18n", "NotifyDataSetChanged", "UseCompatLoadingForDrawables"})
-    private void updateUI(Root root) {
+    private void updateUI(Root root) throws ParseException {
         WeatherList weatherList = root.getList().get(0);
         mainCityTemp.setText(String.valueOf(weatherList.getMain().getTemp()) + "°C");
         mainCityFeels.setText("City: " + root.getCity().getName());
@@ -424,17 +429,56 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
         int nightID = getResources().getIdentifier("night2", "drawable", getActivity().getPackageName());
         weatherIcon.setImageResource(resourceID);
         String dayAtt = weatherList.getSys().getPod();
-        if (dayAtt.matches("d")){
+        if (dayAtt.matches("d")) {
             bottomRelative.setBackground(getResources().getDrawable(dayID));
-        }
-        else if (dayAtt.matches("n")){
+        } else if (dayAtt.matches("n")) {
             bottomRelative.setBackground(getResources().getDrawable(nightID));
         }
+        int dayOfWeek = convertDayFormat(weatherList.getDt_txt());
+        String dayName = findDayName(dayOfWeek);
+        //Toast.makeText(getActivity(), "date : " + dayOfWeek, Toast.LENGTH_SHORT).show();
         //bottomRelative.setBackground(getResources().getIdentifier());
+        todayView.setText(dayName);
         mainCityHum.setText("Feels like: " + String.valueOf(weatherList.getMain().getFeels_like()));
         adapter = new RecyclerviewAdapter(rootView.getContext(), root.getList(), this);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
+    }
+
+    public static int convertDayFormat(String text) throws ParseException {
+        DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = inputFormat.parse(text);
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        int dayOfWeek = c.get(Calendar.DAY_OF_WEEK);
+        String dayName = findDayName(dayOfWeek);
+        return dayOfWeek;
+    }
+
+
+    public static String findDayName(int dayOfWeek) {
+        if (dayOfWeek == 1) {
+            return "Sunday";
+        }
+        if (dayOfWeek == 2) {
+        return "Monday";
+        }
+        if (dayOfWeek == 3) {
+            return "Tuesday";
+        }
+        if (dayOfWeek == 4) {
+            return "Wednesday";
+        }
+        if (dayOfWeek == 5) {
+            return "thursday";
+        }
+        if (dayOfWeek == 6) {
+            return "Friday";
+        }
+        if (dayOfWeek == 7) {
+            return "Saturday";
+        }
+        return String.valueOf(dayOfWeek);
     }
 
     @Override
@@ -465,8 +509,8 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
             city.setName(result.getJSONObject("city").getString("name"));
             root.setCity(city);
 
-            for(int i = 0; i<7; i++){
-                JSONObject jsonObject = ( JSONObject ) days.getJSONObject(i);
+            for (int i = 0; i < 7; i++) {
+                JSONObject jsonObject = (JSONObject) days.getJSONObject(i);
                 df.setRoundingMode(RoundingMode.UP);
                 WeatherList weatherList = new WeatherList();
                 weatherList.setMain(new Main(
@@ -483,12 +527,13 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
                 weatherList.setWind(new Wind(
                         jsonObject.getJSONObject("wind").getDouble("speed")
                 ));
+                weatherList.setDt_txt(jsonObject.getString("dt_txt"));
                 weatherList.setSys(new Sys());
                 weatherList.getSys().setPod(jsonObject.getJSONObject("sys").getString("pod"));
                 root.getList().add(weatherList);
             }
             updateUI(root);
-        } catch (JSONException e) {
+        } catch (JSONException | ParseException e) {
             e.printStackTrace();
         }
     }

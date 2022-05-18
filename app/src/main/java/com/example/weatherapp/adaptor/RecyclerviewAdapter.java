@@ -21,6 +21,7 @@ import com.example.weatherapp.models.Weather;
 import com.example.weatherapp.models.WeatherList;
 import com.example.weatherapp.models.WeatherResult;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 
 public class RecyclerviewAdapter extends RecyclerView.Adapter<RecyclerviewAdapter.ViewHolder> {
@@ -89,11 +90,15 @@ public class RecyclerviewAdapter extends RecyclerView.Adapter<RecyclerviewAdapte
 
         @Override
         public void onClick(View view) {
-            onNoteListener.OnNoteListener(icon, temperature, feelsLike, humidity, getAdapterPosition());
+            try {
+                onNoteListener.OnNoteListener(icon, temperature, feelsLike, humidity, getAdapterPosition());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public interface OnNoteListener {
-        void OnNoteListener(ImageView icon, TextView temp, TextView feelsLike, TextView humidity, int position);
+        void OnNoteListener(ImageView icon, TextView temp, TextView feelsLike, TextView humidity, int position) throws ParseException;
     }
 }

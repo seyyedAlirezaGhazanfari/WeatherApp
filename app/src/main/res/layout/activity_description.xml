@@ -44,13 +44,22 @@
             android:textColor="#E6FFFCFC"
             android:textSize="24sp"
             android:textStyle="bold" />
+
     </RelativeLayout>
+
+    <TextView
+        android:id="@+id/week_name_itemId"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:textAlignment="center"
+        android:textColor="#E6FFFCFC"
+        android:textSize="30dp" />
 
     <TableLayout
         android:id="@+id/tableLayout1"
         android:layout_width="match_parent"
         android:layout_height="117dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="60dp"
         android:background="@drawable/recycler_item_back"
         android:backgroundTint="#FFF8F8"
         android:stretchColumns="0,1">

@@ -9,6 +9,10 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.weatherapp.fragments.WeatherFragment;
+
+import java.text.ParseException;
+
 public class DescriptionActivity extends AppCompatActivity {
     TextView tempView;
     TextView feelsLikeView;
@@ -17,6 +21,7 @@ public class DescriptionActivity extends AppCompatActivity {
     ImageView icon;
     RelativeLayout cityNameLayout;
     TextView cityNameView;
+    TextView weekView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -29,6 +34,7 @@ public class DescriptionActivity extends AppCompatActivity {
         descriptionView = findViewById(R.id.descriptionView);
         cityNameLayout = findViewById(R.id.citynameLayoutId);
         cityNameView = cityNameLayout.findViewById(R.id.cityNameDesId);
+        weekView = findViewById(R.id.week_name_itemId);
         Intent intent = getIntent();
         int iconResourceID = intent.getIntExtra("iconDesc", R.drawable.finding);
         String temperature = intent.getStringExtra("tempDesc");
@@ -36,11 +42,21 @@ public class DescriptionActivity extends AppCompatActivity {
         String humidity = intent.getStringExtra("humidityDesc");
         String description = intent.getStringExtra("description");
         String cityName = intent.getStringExtra("cityName");
+        String weekName = intent.getStringExtra("dateName");
         icon.setImageResource(iconResourceID);
         tempView.setText(temperature);
         feelsLikeView.setText(feelsLike);
         humidityView.setText(humidity);
         descriptionView.setText(description);
         cityNameView.setText(cityName);
+        try {
+            int dateId = WeatherFragment.convertDayFormat(weekName);
+            String date = WeatherFragment.findDayName(dateId);
+            weekView.setText(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+
     }
 }
