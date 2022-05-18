@@ -321,16 +321,16 @@ public class WeatherFragment extends Fragment implements RecyclerviewAdapter.OnN
             @Override
             public void onLocationChanged(Location location) {
                 Toast.makeText(getActivity(), "on location changed", Toast.LENGTH_SHORT).show();
-                String Latitude = String.valueOf(location.getLatitude());
-                String Longitude = String.valueOf(location.getLongitude());
+                String Latitude1 = String.valueOf(location.getLatitude());
+                String Longitude1 = String.valueOf(location.getLongitude());
                 //RequestParams params = new RequestParams();
                 //params.put("lat", Latitude);
                 //params.put("lon", Longitude);
                 //params.put("appid", APP_ID);
-                Bundle queryBundle = new Bundle();
-                queryBundle.putString("lat", Latitude);
-                queryBundle.putString("lon", Longitude);
-                WeatherFragment.this.getActivity().getSupportLoaderManager().restartLoader(0, queryBundle, WeatherFragment.this);
+                Bundle queryBundle1 = new Bundle();
+                queryBundle1.putString("lat", Latitude1);
+                queryBundle1.putString("lon", Longitude1);
+                WeatherFragment.this.getActivity().getSupportLoaderManager().restartLoader(0, queryBundle1, WeatherFragment.this);
             }
 
             @Override
